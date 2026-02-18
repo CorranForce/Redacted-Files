@@ -89,7 +89,8 @@ class DeclassifiedAPITester:
             "/analyze",
             200,
             data,
-            timeout=45  # LLM calls take time
+            timeout=45,  # LLM calls take time
+            is_form_data=True
         )
         
         if success and isinstance(response, dict):
