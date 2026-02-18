@@ -1,0 +1,133 @@
+{
+  "brand_identity": {
+    "name": "Redacted",
+    "tagline": "Declassify the Truth. Viralize the Secrets.",
+    "metaphor": "A high-tech underground bunker terminal processing sensitive government leaks.",
+    "emotional_tone": "Mysterious, Urgent, Unauthorized, High-Tech, Rough",
+    "visual_style": "Digital Brutalism meets Spy Thriller. Think 'Control' (the game) mixed with 'The Matrix' and a messy government archive."
+  },
+  "typography": {
+    "primary_font": {
+      "name": "Oswald",
+      "type": "google_font",
+      "weights": ["400", "500", "700"],
+      "usage": "Headings, Hero Text, Action Buttons",
+      "import_url": "https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;700&display=swap"
+    },
+    "secondary_font": {
+      "name": "JetBrains Mono",
+      "type": "google_font",
+      "weights": ["400", "700"],
+      "usage": "Body text, Data displays, Input fields, Code blocks",
+      "import_url": "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap"
+    },
+    "rules": {
+      "headings": "Uppercase, tight tracking (tracking-tight), heavy weight.",
+      "body": "Monospace, generous line-height, slightly smaller size (text-sm) for that 'technical data' feel.",
+      "labels": "Uppercase, wide tracking (tracking-widest), tiny text (text-xs), opacity-70."
+    }
+  },
+  "colors": {
+    "palette": {
+      "background": "#09090b",
+      "surface": "#18181b",
+      "surface_highlight": "#27272a",
+      "border": "#3f3f46",
+      "text_primary": "#f4f4f5",
+      "text_secondary": "#a1a1aa",
+      "accent_primary": "#22c55e",
+      "accent_secondary": "#ffb000",
+      "destructive": "#ef4444",
+      "terminal_black": "#000000"
+    },
+    "usage": {
+      "app_bg": "bg-[#09090b] relative overflow-x-hidden",
+      "card_bg": "bg-[#18181b] border border-[#3f3f46]",
+      "primary_action": "bg-[#f4f4f5] text-[#09090b] hover:bg-[#22c55e] hover:text-black transition-colors duration-200",
+      "destructive_action": "bg-transparent border border-[#ef4444] text-[#ef4444] hover:bg-[#ef4444] hover:text-white",
+      "success_indicator": "text-[#22c55e]"
+    },
+    "gradients": "No gradients. Use solid blocks of color or noise textures."
+  },
+  "visual_enhancers": {
+    "textures": {
+      "noise_overlay": "fixed inset-0 pointer-events-none opacity-[0.03] z-50 bg-[url('https://images.pexels.com/photos/5052331/pexels-photo-5052331.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940')] bg-repeat mix-blend-overlay",
+      "scanlines": "linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06))"
+    },
+    "effects": {
+      "redacted": "bg-current text-transparent select-none animate-pulse cursor-help hover:bg-transparent hover:text-current transition-all duration-300",
+      "glitch": "See generic CSS for glitch keyframes",
+      "terminal_cursor": "inline-block w-2 h-5 bg-[#22c55e] animate-pulse ml-1 align-middle"
+    }
+  },
+  "components": {
+    "buttons": {
+      "style": "rounded-none border-2 border-transparent uppercase font-bold tracking-wider px-6 py-3",
+      "variants": {
+        "default": "bg-white text-black hover:bg-[#22c55e] hover:scale-[1.02]",
+        "outline": "border-white/20 text-white hover:border-[#22c55e] hover:text-[#22c55e]",
+        "ghost": "hover:bg-white/5 text-gray-400 hover:text-white"
+      }
+    },
+    "inputs": {
+      "style": "bg-black/50 border-b-2 border-[#3f3f46] focus:border-[#22c55e] rounded-none px-4 py-3 font-mono text-white placeholder:text-gray-600 outline-none transition-colors"
+    },
+    "cards": {
+      "style": "bg-[#18181b] border border-[#3f3f46] p-6 rounded-sm relative overflow-hidden group",
+      "hover": "hover:border-[#22c55e]/50 transition-colors",
+      "decoration": "Add a small 'corner cut' using clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)"
+    },
+    "social_previews": {
+        "facebook": "bg-[#242526] text-[#E4E6EB] font-sans border border-[#3E4042]",
+        "twitter": "bg-black text-white font-sans border border-[#333333]",
+        "instagram": "bg-black text-white font-sans border border-[#262626]"
+    }
+  },
+  "layout": {
+    "spacing": "Generous padding (p-8, p-12) to create a 'lab' feel. Use gaps of gap-8.",
+    "grid": "Use CSS Grid (grid-cols-12). Alignments should be strict.",
+    "containers": "max-w-7xl mx-auto"
+  },
+  "motion": {
+    "types": {
+      "decode": "Text characters cycling randomly before settling on the final letter.",
+      "scan": "A horizontal line moving down the container (scanning effect).",
+      "blink": "Standard terminal cursor blink."
+    },
+    "libraries": "framer-motion"
+  },
+  "accessibility": {
+    "contrast": "Ensure all text is at least Zinc-400 on Zinc-950.",
+    "reduced_motion": "Disable glitch effects and text decoding if prefers-reduced-motion is true."
+  },
+  "image_urls": {
+    "background_texture": "https://images.pexels.com/photos/5052331/pexels-photo-5052331.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+    "glitch_overlay": "https://images.unsplash.com/photo-1765408217792-94cbe94998ed?crop=entropy&cs=srgb&fm=jpg&q=85",
+    "placeholder_logo": "Use a simple SVG shape (triangle/square) or text logo."
+  },
+  "instructions_to_main_agent": [
+    "1. INSTALL FONTS: Add Oswald and JetBrains Mono to index.html immediately.",
+    "2. SETUP TAILWIND: Update tailwind.config.js with the custom colors (zinc-950 based).",
+    "3. CREATE LAYOUT: Build a 'Shell' component that wraps the app with the noise texture overlay.",
+    "4. BUILD COMPONENTS: Create 'TerminalInput', 'RedactedCard', 'GlitchButton'.",
+    "5. PREVIEW CARDS: For the social media posts, do NOT use the brutalist style. They must look like ACTUAL screenshots of FB/IG/X posts to show the user what they will get. Wrap these preview cards in a brutalist container.",
+    "6. FILE UPLOAD: Make the dropzone look like a scanning bed (grid background, moving scan line).",
+    "7. RESULTS PAGE: Use a Bento grid to show the 3 generated posts side-by-side (or stacked on mobile).",
+    "8. MICRO-INTERACTIONS: Hovering over 'Redacted' text should reveal it. Buttons should have a mechanical click feel (scale down slightly).",
+    "9. TOASTS: Use 'sonner' with a custom black/green theme."
+  ],
+  "universal_guidelines": [
+    "Dark colors look good when used independently without gradients. DO NOT use dark colors as gradients",
+    "Don't make generic centered layouts, simplistic gradients, and uniform styling.",
+    "Create depth through layered design elements with z-index hierarchy",
+    "Use glass-morphism effects with backdrop filters (12-24px blur)",
+    "You MUST NOT apply universal transition. Eg: transition: all.",
+    "You MUST NOT center align the app container, ie do not add .App { text-align: center; } in the css file.",
+    "Always use modern button styles like pill-shaped, or sharp button with interaction animations & color relevant to the app style",
+    "NEVER: use AI assistant Emoji characters like 🤖🧠 etc.",
+    "Every interaction needs micro-animations.",
+    "Use 2-3x more spacing than feels comfortable.",
+    "Subtle grain textures, noise overlays, custom cursors, selection states, and loading animations: separates good from extraordinary.",
+    "Toasts: Use sonner."
+  ]
+}
