@@ -11,10 +11,14 @@ class DeclassifiedAPITester:
         self.tests_passed = 0
         self.findings = []
 
-    def run_test(self, name, method, endpoint, expected_status, data=None, timeout=60):
+    def run_test(self, name, method, endpoint, expected_status, data=None, timeout=60, is_form_data=False):
         """Run a single API test"""
         url = f"{self.base_url}/api{endpoint}"
-        headers = {'Content-Type': 'application/json'}
+        headers = {}
+        
+        # Only set JSON content type if not form data
+        if not is_form_data:
+            headers['Content-Type'] = 'application/json'
 
         self.tests_run += 1
         print(f"\n🔍 Testing {name}...")
@@ -24,10 +28,12 @@ class DeclassifiedAPITester:
             if method == 'GET':
                 response = requests.get(url, headers=headers, timeout=timeout)
             elif method == 'POST':
-                if isinstance(data, dict):
+                if is_form_data:
+                    # For form data (like analyze endpoint)
+                    response = requests.post(url, data=data, timeout=timeout)
+                elif isinstance(data, dict):
                     response = requests.post(url, json=data, headers=headers, timeout=timeout)
                 else:
-                    # For form data (like file uploads)
                     response = requests.post(url, data=data, timeout=timeout)
 
             success = response.status_code == expected_status
