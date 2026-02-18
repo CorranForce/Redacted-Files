@@ -75,6 +75,7 @@ class DeclassifiedAPITester:
         """Test POST /api/analyze with text input"""
         sample_text = """CIA Project MKUltra was a top-secret mind control program that used LSD and other drugs on unwitting American citizens. The project ran from 1953 to 1973. Documents reveal the CIA tested on prisoners, mental patients, and drug addicts without consent. The program was officially halted after a Congressional investigation in 1977."""
         
+        # Send as form data, not JSON
         data = {"text": sample_text}
         success, response = self.run_test(
             "Analyze Document (Text)",
