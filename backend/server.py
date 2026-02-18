@@ -14,7 +14,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime, timezone
 from emergentintegrations.llm.chat import LlmChat, UserMessage
-from emergentintegrations.llm.openai.image_generation import OpenAIImageGeneration
+from emergentintegrations.llm.chat import ImageContent
 import PyPDF2
 
 ROOT_DIR = Path(__file__).parent
@@ -195,7 +195,11 @@ async def generate_post(req: GeneratePostRequest):
 
 @api_router.post("/generate-image")
 async def generate_image(req: GenerateImageRequest):
-    image_gen = OpenAIImageGeneration(api_key=EMERGENT_LLM_KEY)
+    chat = LlmChat(
+        api_key=EMERGENT_LLM_KEY,
+        session_id=f"image-{uuid.uuid4()}",
+        system_message="You are an expert visual designer creating social media graphics."
+    ).with_model("gemini", "gemini-3-pro-image-preview").with_params(modalities=["image", "text"])
 
     prompt = (
         f"Create a bold, cinematic social media visual card. "
@@ -206,16 +210,13 @@ async def generate_image(req: GenerateImageRequest):
         f"No social media logos. No readable text. Abstract and atmospheric."
     )
 
-    images = await image_gen.generate_images(
-        prompt=prompt,
-        model="gpt-image-1",
-        number_of_images=1
-    )
+    msg = UserMessage(text=prompt)
+    text_resp, images = await chat.send_message_multimodal_response(msg)
 
-    if not images:
+    if not images or len(images) == 0:
         raise HTTPException(500, "Image generation failed")
 
-    img_b64 = base64.b64encode(images[0]).decode('utf-8')
+    img_b64 = images[0]['data']
     await db.posts.update_one(
         {"id": req.post_id},
         {"$set": {"image_base64": img_b64}}
