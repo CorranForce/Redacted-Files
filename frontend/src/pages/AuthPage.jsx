@@ -110,6 +110,12 @@ export default function AuthPage() {
             </Button>
           </form>
 
+          {isLogin && (
+            <p className="font-mono text-xs text-[#a1a1aa] text-center">
+              <Link data-testid="forgot-password-link" to="/forgot-password" className="text-[#22c55e] hover:underline">Forgot password?</Link>
+            </p>
+          )}
+
           <p className="font-mono text-xs text-[#a1a1aa] text-center">
             {isLogin ? "No clearance?" : "Already have access?"}{" "}
             <button data-testid="auth-toggle-btn" onClick={() => setIsLogin(!isLogin)} className="text-[#22c55e] hover:underline">{isLogin ? "Create account" : "Sign in"}</button>
