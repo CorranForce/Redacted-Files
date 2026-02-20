@@ -226,6 +226,125 @@ class DeclassifiedAPITester:
                 return True
         return False
 
+    # Authentication Tests
+    def test_register_new_user(self):
+        """Test POST /api/auth/register with new user"""
+        timestamp = datetime.now().strftime('%H%M%S')
+        data = {
+            "name": f"Test User {timestamp}",
+            "email": f"newuser{timestamp}@test.com",
+            "password": "testpass123"
+        }
+        
+        success, response = self.run_test(
+            "Register New User",
+            "POST",
+            "/auth/register",
+            200,
+            data
+        )
+        
+        if success and isinstance(response, dict):
+            if 'token' in response and 'user' in response:
+                print(f"   ✅ Registration successful, got JWT token")
+                print(f"   ✅ User: {response['user']['email']}")
+                return True
+            else:
+                print(f"   ❌ Missing token or user in response")
+        return False
+
+    def test_register_existing_user(self):
+        """Test POST /api/auth/register with existing user (should fail)"""
+        data = {
+            "name": "Test User",
+            "email": "test@test.com",
+            "password": "testpass123"
+        }
+        
+        success, response = self.run_test(
+            "Register Existing User (Should Fail)",
+            "POST",
+            "/auth/register",
+            409,  # Expected conflict
+            data
+        )
+        
+        return success  # Success means it correctly returned 409
+
+    def test_login_valid_credentials(self):
+        """Test POST /api/auth/login with valid credentials"""
+        data = {
+            "email": "test@test.com",
+            "password": "test123"
+        }
+        
+        success, response = self.run_test(
+            "Login Valid Credentials",
+            "POST",
+            "/auth/login",
+            200,
+            data
+        )
+        
+        if success and isinstance(response, dict):
+            if 'token' in response and 'user' in response:
+                self.auth_token = response['token']
+                self.user_id = response['user']['user_id']
+                print(f"   ✅ Login successful, got JWT token")
+                print(f"   ✅ User ID: {self.user_id}")
+                return True
+            else:
+                print(f"   ❌ Missing token or user in response")
+        return False
+
+    def test_login_invalid_credentials(self):
+        """Test POST /api/auth/login with invalid credentials"""
+        data = {
+            "email": "test@test.com",
+            "password": "wrongpassword"
+        }
+        
+        success, response = self.run_test(
+            "Login Invalid Credentials (Should Fail)",
+            "POST",
+            "/auth/login",
+            401,  # Expected unauthorized
+            data
+        )
+        
+        return success  # Success means it correctly returned 401
+
+    def test_auth_me_with_token(self):
+        """Test GET /api/auth/me with valid token"""
+        if not self.auth_token:
+            print("❌ Skipping - No auth token available")
+            return False
+            
+        success, response = self.run_test(
+            "Get User Info (With Token)",
+            "GET",
+            "/auth/me",
+            200,
+            auth_required=True
+        )
+        
+        if success and isinstance(response, dict):
+            if 'user_id' in response and 'email' in response:
+                print(f"   ✅ Got user info: {response['email']}")
+                return True
+        return False
+
+    def test_auth_me_without_token(self):
+        """Test GET /api/auth/me without token"""
+        success, response = self.run_test(
+            "Get User Info (Without Token - Should Fail)",
+            "GET",
+            "/auth/me",
+            401  # Expected unauthorized
+        )
+        
+        return success  # Success means it correctly returned 401
+
 def main():
     print("🚀 Starting REDACTED API Tests")
     print("=" * 50)
