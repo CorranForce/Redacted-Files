@@ -7,6 +7,7 @@ import { AuthCallback } from "@/components/AuthCallback";
 import LandingPage from "@/pages/LandingPage";
 import AuthPage from "@/pages/AuthPage";
 import DashboardPage from "@/pages/DashboardPage";
+import ResetPasswordPage from "@/pages/ResetPasswordPage";
 import "@/App.css";
 
 // Add auth token to all axios requests
@@ -26,6 +27,7 @@ function AppRouter() {
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/auth" element={<AuthPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
     </Routes>
   );
