@@ -12,6 +12,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { FacebookPost } from "@/components/FacebookPost";
 import { InstagramPost } from "@/components/InstagramPost";
 import { TwitterPost } from "@/components/TwitterPost";
+import { VideoGenSection } from "@/components/VideoGenSection";
 
 const PostWrapper = ({ platform, post, imageLoading, onGenerateImage }) => {
   const platformLabels = { twitter: "X / Twitter", facebook: "Facebook", instagram: "Instagram" };
@@ -145,6 +146,19 @@ export const ResultsView = ({ findings, posts, imageLoading, onGenerateImage, on
             />
           ))}
         </div>
+      </div>
+
+      <div>
+        <p className="font-mono text-xs uppercase tracking-[0.3em] text-[#a1a1aa] mb-4">
+          // generate video
+        </p>
+        <p className="font-mono text-sm text-[#a1a1aa] mb-4 max-w-2xl">
+          Turn your declassified findings into a cinematic AI-generated video powered by Sora 2.
+        </p>
+        <VideoGenSection
+          promptText={findings.join(" ")}
+          label="Generate Declassified Video"
+        />
       </div>
     </div>
   );
