@@ -1,5 +1,6 @@
 import React from "react";
-import { FileWarning, Clock } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { FileWarning, Clock, UserCircle } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 export const Header = ({ history = [], onLoadSession, user, onLogout }) => {
+  const navigate = useNavigate();
   return (
     <header
       data-testid="header"
