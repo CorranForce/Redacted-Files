@@ -4,7 +4,7 @@ import sys
 from datetime import datetime
 
 class DeclassifiedAPITester:
-    def __init__(self, base_url="https://classified-clips-2.preview.emergentagent.com"):
+    def __init__(self, base_url="https://secret-snippets-1.preview.emergentagent.com"):
         self.base_url = base_url
         self.session_id = None
         self.auth_token = None

@@ -1,0 +1,155 @@
+<analysis>**original_problem_statement:** 
+Build an app that takes any declassified government file, finds the most interesting mind-blowing points in the document, and puts them into a Facebook, Instagram, or X (twitter) style post.
+
+PRODUCT REQUIREMENTS:
+- A user can upload a declassified government document.
+- The app uses AI to analyze the document and extract key points.
+- It generates social media posts (Facebook, Instagram, X/Twitter) from the analysis.
+- The app includes user authentication (signup/login/forgot password).
+- A landing page showcases the app's features, including platform post previews and a demo video.
+- The app generates images (using Gemini Nano Banana) and videos (using Sora 2) based on the content.
+- Generated content (images, videos) must be downloadable.
+- User activity history should be linked to their account.
+
+**User's preferred language**: English
+
+**what currently exists?**
+A full-stack application with a FastAPI backend and a React frontend. The core functionality of uploading a document, analyzing it, and generating text-based social media posts is complete. The application also features JWT-based user authentication, a landing page, and integrations with Gemini Nano Banana for image generation and Sora 2 for video generation.
+
+**Last working item**:
+-   **Last item agent was working:** The agent was in the middle of implementing a large, multi-feature update requested by the user. This update includes:
+    1.  Adding Forgot Password functionality using the Resend email service.
+    2.  Linking session history to authenticated user accounts.
+    3.  Making generated images and videos downloadable.
+    4.  Adding a caption to inform users about the download feature.
+    5.  Implementing server-side caching for the landing page's demo video.
+    6.  Dynamically generating images for the platform previews on the landing page using Nano Banana.
+
+    The agent has just written all the necessary code for both the backend and frontend but has not performed any verification or testing.
+-   **Status:** IN PROGRESS
+-   **Agent Testing Done:** N
+-   **Which testing method agent to use?** both. Given the significant changes across authentication, database logic, and multiple frontend components, a full end-to-end test using the testing agent is required after initial checks.
+-   **User Testing Done:** N
+
+**All Pending/In progress Issue list**:
+There are no reported bugs. The current focus is on completing the in-progress feature implementation.
+
+**In progress Task List**:
+-   **Task 1: Complete and Verify Multi-Feature Update (P0)**
+    -   **Where to resume:** The agent has just applied a large batch of code changes for the new features. The next steps are to:
+        1.  Restart the backend service to load the new  environment variable using backend: stopped
+backend: started.
+        2.  Run  and  in parallel to check for syntax errors.
+        3.  Verify the frontend compiles and the application loads by taking a screenshot.
+        4.  Perform comprehensive end-to-end testing using the  to validate all new features: forgot password flow, user-specific history, content download, and landing page updates.
+    -   **What will be achieved with this?** The application will have a complete authentication system with password recovery, a more dynamic landing page, persistent history for users, and an improved user experience with downloadable media.
+    -   **Status:** IN PROGRESS
+    -   **Should Test frontend/backend/both after fix?** both
+    -   **Blocked on something:** None
+
+**Upcoming and Future Tasks**
+-   None specified by the user. The priority is to complete the current multi-feature update.
+
+**Completed work in this session**
+-   **Core App:** Initial creation of the document analysis and social media post generation app.
+-   **Authentication:** Implemented JWT-based user registration and login.
+-   **Landing Page:** Built a multi-section landing page with a typewriter-style demo.
+-   **Image Generation:** Integrated Gemini Nano Banana for image generation.
+-   **Video Generation:** Integrated Sora 2 for background video generation with status polling.
+-   **Bug Fix:** Resolved an issue with the landing page's typewriter animation.
+-   **UI Text Update:** Updated descriptive text on the file upload component.
+
+**Earlier issues found/mentioned but not fixed**
+-   None.
+
+**Known issue recurrence from previous fork**
+-   None.
+
+**Code Architecture**
+
+
+**Key Technical Concepts**
+-   **Frontend:** React, TailwindCSS, shadcn/ui
+-   **Backend:** FastAPI, Python
+-   **Database:** MongoDB
+-   **Authentication:** JWT (JSON Web Tokens)
+-   **Asynchronous Tasks:** Background processing for video generation.
+-   **Integrations:** Emergent LLM Key for AI services, Resend for email.
+
+**key DB schema**
+-   **users:** 
+-   **history:** 
+-   **videos:** 
+-   **password_reset_tokens:** 
+
+**changes in tech stack**
+-   No changes to the core stack.
+-   **New dependency:**  library added to the backend.
+
+**All files of reference**
+-   ****: Heavily modified to add endpoints for password reset (, ), user history (), and content caching/downloading.
+-   ****: Modified to add .
+-   ****: Modified to add .
+-   ****: New file created for the password reset UI.
+-   ****: Modified to add the route for the reset password page.
+-   ****: Modified to include a Forgot Password? link.
+-   ****: Modified to fetch cached video and dynamically generated images.
+-   ****: Modified to include download functionality for generated content.
+-   ****: Modified to include download functionality for the video.
+
+**key api endpoints**
+-   
+-   
+-   
+-   
+-   
+-   
+-   **Newly Added (Untested):**
+    -   
+    -   
+    -   
+    -   
+    -   
+
+**Critical Info for New Agent**
+-   You are resuming mid-way through a large feature implementation. The previous agent has written all the code but has not tested any of it.
+-   Your immediate first step is to restart the backend service (backend: stopped
+backend: started) because the  file was updated with a Resend API key.
+-   After restarting, proceed with linting and then a full end-to-end test using the testing agent. Be prepared to debug issues across the new Forgot Password flow, user history, and content download features.
+
+**documents and test reports created in this job**
+-   
+
+**Last 10 User Messages and any pending HUMAN messages**
+1.  **User:** Let's add user authentication so anyone can sign up. We will need to create a landing page, and this will be a free application. (Completed)
+2.  **Agent:** Asks for auth and landing page preferences.
+3.  **User:** Requests both JWT & Google Auth, a landing page with screenshots of target platforms, and a demo video. (Partially implemented - JWT only so far)
+4.  **Agent:** Implements JWT auth and landing page.
+5.  **User:** The demo video looks like it's glitched. analyze and fix. (Completed)
+6.  **Agent:** Fixes the typewriter animation bug.
+7.  **User:** Add in a randomly generated video. (Completed)
+8.  **Agent:** Asks about video generation preferences.
+9.  **User:** Requests video generation on both the landing page and dashboard, powered by Sora 2. (Completed)
+10. **User:** For the platform previews, add a Nano Banana generated image based on the sample text. Implement video caching for the landing page demo. Allow the generated video and images to be downloadable with a download icon when they hover over the images/video. Add caption letting them know they can do this. Link per-user session history to authenticated accounts. Also, add in forgot password functionality. Email service will be Resend and the API key is re_77B8SA6M_8P4YVvK4YhXXw4KzsfkhMUiZ. (**This is the current, in-progress task.**)
+
+**Project Health Check:**
+-   **Broken:** The application is in an unstable, untested state. A large number of interconnected features have just been added without any verification. There is a high probability of bugs in the authentication, history, and content delivery flows.
+
+**3rd Party Integrations**
+-   **OpenAI GPT-4o** (Text Analysis) — uses Emergent LLM Key
+-   **Gemini Nano Banana ()** (Image Generation) — uses Emergent LLM Key
+-   **Sora 2** (Video Generation) — uses Emergent LLM Key
+-   **Resend** (Email for Password Reset) — requires User API Key
+
+**Testing status**
+-   **Testing agent used after significant changes:** NO (for the current set of changes).
+-   **Troubleshoot agent used after agent stuck in loop:** NO
+-   **Test files created:** []
+-   **Known regressions:** None are known, but the risk is high due to the extensive, untested changes.
+
+**Credentials to test flow:**
+-   User accounts can be created via the  endpoint.
+-   Resend API Key:  (already in ).
+
+**What agent forgot to execute**
+-   The agent has not yet tested or verified the large batch of code changes it just made for the multi-feature update. The immediate next step is to restart the services and begin the testing and debugging cycle.</analysis>
