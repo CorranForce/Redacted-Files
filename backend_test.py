@@ -7,6 +7,8 @@ class DeclassifiedAPITester:
     def __init__(self, base_url="https://classified-clips-2.preview.emergentagent.com"):
         self.base_url = base_url
         self.session_id = None
+        self.auth_token = None
+        self.user_id = None
         self.tests_run = 0
         self.tests_passed = 0
         self.findings = []
