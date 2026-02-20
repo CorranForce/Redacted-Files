@@ -272,6 +272,22 @@ async def reset_password(req: ResetPasswordRequest):
     return {"message": "Password reset successfully"}
 
 
+@api_router.post("/auth/change-password")
+async def change_password(req: ChangePasswordRequest, request: Request):
+    user = await get_current_user(request)
+    if not user.get("password_hash"):
+        raise HTTPException(400, "Account uses social login. Password cannot be changed here.")
+    if not check_pw(req.current_password, user["password_hash"]):
+        raise HTTPException(401, "Current password is incorrect")
+    if len(req.new_password) < 6:
+        raise HTTPException(400, "New password must be at least 6 characters")
+    await db.users.update_one(
+        {"user_id": user["user_id"]},
+        {"$set": {"password_hash": hash_pw(req.new_password)}}
+    )
+    return {"message": "Password updated successfully"}
+
+
 @api_router.get("/")
 async def root():
     return {"message": "REDACTED API", "status": "operational"}
