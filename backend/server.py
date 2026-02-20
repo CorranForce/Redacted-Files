@@ -19,6 +19,9 @@ import PyPDF2
 import jwt as pyjwt
 import bcrypt as bcrypt_lib
 import requests as http_requests
+import asyncio
+from emergentintegrations.llm.openai.video_generation import OpenAIVideoGeneration
+from fastapi.responses import FileResponse
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -65,6 +68,11 @@ class GenerateImageRequest(BaseModel):
     post_id: str
     post_text: str
     platform: str
+
+
+class GenerateVideoRequest(BaseModel):
+    prompt_text: str
+    session_id: Optional[str] = None
 
 
 # Auth helpers
