@@ -158,7 +158,7 @@ function App() {
                 <span className="text-[#22c55e]">Viralize the Secrets.</span>
               </h1>
               <p className="font-mono text-sm text-[#a1a1aa] max-w-2xl leading-relaxed">
-                Upload any declassified government document. Our AI extracts the most
+                Upload any declassified government document and all other files. Our AI extracts the most
                 mind-blowing revelations and packages them into viral social media posts.
               </p>
             </div>
