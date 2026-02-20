@@ -78,6 +78,14 @@ export const Header = ({ history = [], onLoadSession, user, onLogout }) => {
             <div className="flex items-center gap-3">
               <span className="hidden sm:inline font-mono text-xs text-[#a1a1aa]">{user.name || user.email}</span>
               <Button
+                data-testid="profile-btn"
+                variant="ghost"
+                onClick={() => navigate("/profile")}
+                className="font-mono text-xs uppercase tracking-widest text-[#a1a1aa] hover:text-[#22c55e] hover:bg-transparent h-7 w-7 p-0"
+              >
+                <UserCircle className="w-4 h-4" />
+              </Button>
+              <Button
                 data-testid="logout-btn"
                 variant="ghost"
                 onClick={onLogout}
