@@ -8,6 +8,8 @@ import LandingPage from "@/pages/LandingPage";
 import AuthPage from "@/pages/AuthPage";
 import DashboardPage from "@/pages/DashboardPage";
 import ResetPasswordPage from "@/pages/ResetPasswordPage";
+import ForgotPasswordPage from "@/pages/ForgotPasswordPage";
+import ProfilePage from "@/pages/ProfilePage";
 import "@/App.css";
 
 // Add auth token to all axios requests
