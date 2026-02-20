@@ -1,49 +1,72 @@
-# REDACTED - Declassified Document to Social Media Post Generator
+# REDACTED - Declassified Document Viral Post Generator
 
-## Original Problem Statement
-Build an app that takes any declassified government file, finds the most interesting mind-blowing points in the document, and puts them into Facebook, Instagram, or X (twitter) style posts.
+## Problem Statement
+Build an app that takes any declassified government file, finds the most interesting mind-blowing points in the document, and puts them into a Facebook, Instagram, or X (Twitter) style post.
 
 ## Architecture
-- **Frontend**: React + Tailwind CSS + Shadcn UI (dark brutalist theme)
-- **Backend**: FastAPI + MongoDB + OpenAI GPT-5.2 (text) + Gemini Nano Banana (images)
-- **Auth**: JWT (email/password) + Emergent-managed Google OAuth
-- **Database**: MongoDB (sessions, posts, users collections)
-
-## User Personas
-- Content creators, conspiracy researchers, history buffs, journalists, social media managers
+- **Frontend:** React + TailwindCSS + shadcn/ui
+- **Backend:** FastAPI + Python
+- **Database:** MongoDB
+- **Auth:** JWT + Google OAuth (Emergent)
+- **AI:** GPT-5.2 (analysis), Gemini Nano Banana (images), Sora 2 (videos)
+- **Email:** Resend (password reset)
 
 ## Core Requirements
-- PDF upload and text paste input
-- AI-powered document analysis (extract 5 mind-blowing findings)
-- Platform-specific post generation (Twitter/X, Facebook, Instagram)
-- AI-generated visual cards per post (Nano Banana)
-- Copy text and download image functionality
-- Session history
-- User authentication (email/password + Google OAuth)
-- Marketing landing page
+- Upload declassified documents (PDF/text)
+- AI analysis extracts top 5 mind-blowing revelations
+- Generate platform-optimized posts for X, Facebook, Instagram
+- Generate AI images (Nano Banana) and videos (Sora 2)
+- JWT + Google auth with signup/login
+- Forgot password via email (Resend)
+- Profile section to update password
+- Downloadable images and videos
+- User-specific session history
+- Landing page with platform previews and demo
 
-## What's Been Implemented (Feb 2026)
-### Phase 1: MVP
-- Full backend API: /analyze, /generate-post, /generate-image, /history, /session/{id}
-- Dark "Digital Brutalist" themed UI with Oswald + JetBrains Mono fonts
-- Document input (PDF upload + text paste), Platform selector, Loading state
-- Authentic social media post preview cards (Facebook, Instagram, Twitter/X)
-- GPT-5.2 text analysis and post generation
+## Implemented Features (as of Feb 20, 2026)
+- [x] Document upload & AI analysis (GPT-5.2)
+- [x] Social media post generation (X, Facebook, Instagram)
+- [x] AI image generation (Gemini Nano Banana)
+- [x] AI video generation (Sora 2)
+- [x] JWT authentication (register/login)
+- [x] Google OAuth via Emergent
+- [x] Forgot password flow (Resend email)
+- [x] Reset password page
+- [x] Profile page with password update
+- [x] User-specific session history
+- [x] Downloadable images and videos
+- [x] Download captions
+- [x] Landing page (hero, how-it-works, previews, demo, video, CTA)
+- [x] Typewriter demo animation
 
-### Phase 2: Auth + Landing Page
-- JWT authentication (register/login with bcrypt hashing)
-- Emergent-managed Google OAuth
-- Marketing landing page with hero, "How It Works", platform previews (MKUltra samples), live X/Twitter typewriter demo, CTA
-- Protected dashboard behind auth
-- User management (name, email, picture, auth provider)
+## Key API Endpoints
+- POST /api/auth/register
+- POST /api/auth/login
+- POST /api/auth/google-session
+- POST /api/auth/forgot-password
+- POST /api/auth/reset-password
+- POST /api/auth/change-password
+- GET /api/auth/me
+- POST /api/analyze
+- POST /api/generate-post
+- POST /api/generate-image
+- POST /api/generate-video
+- GET /api/video-status/{video_id}
+- GET /api/videos/{video_id}
+- GET /api/history
+- GET /api/session/{session_id}
+- GET /api/demo/images
+- GET /api/demo/video
+- POST /api/demo/generate-video
 
-### Phase 3: Image Generator Update
-- Switched from GPT Image 1 to Gemini Nano Banana for visual card generation
+## DB Collections
+- users: {user_id, email, name, password_hash, picture, auth_provider, created_at}
+- sessions: {id, document_name, document_preview, findings, user_id, created_at}
+- posts: {id, session_id, platform, post_text, hashtags, image_base64, created_at}
+- videos: {video_id, session_id, status, created_at}
+- reset_tokens: {token, email, expires_at, used, created_at}
+- demo_cache: {type, images/video_id, created_at}
 
-## Prioritized Backlog
-- P1: Share directly to social media platforms
-- P1: Batch processing of multiple documents
-- P2: Post editing/customization before copy
-- P2: Document OCR for scanned PDFs
-- P3: User history per account
-- P3: Template selection for different post styles
+## Backlog
+- P2: Dynamic landing page images from Nano Banana (backend endpoint exists)
+- P2: Landing page demo video caching (backend endpoint exists)
