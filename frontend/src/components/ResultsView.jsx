@@ -135,6 +135,9 @@ export const ResultsView = ({ findings, posts, imageLoading, onGenerateImage, on
         <p className="font-mono text-xs uppercase tracking-[0.3em] text-[#a1a1aa] mb-8">
           // generated posts
         </p>
+        <p className="font-mono text-[10px] text-[#3f3f46] mb-6">
+          Generated images and videos are downloadable — use the download icons above each post.
+        </p>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {posts.map((post) => (
             <PostWrapper
