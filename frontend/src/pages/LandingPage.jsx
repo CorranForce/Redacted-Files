@@ -199,6 +199,19 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* AI Video */}
+      <section data-testid="landing-video-section" className="relative z-10 border-t border-[#3f3f46] py-24">
+        <div className="max-w-3xl mx-auto px-6 lg:px-12">
+          <p className="font-mono text-xs uppercase tracking-[0.3em] text-[#a1a1aa] mb-4">// ai video generation</p>
+          <h2 className="font-oswald text-2xl sm:text-3xl font-bold uppercase tracking-tight text-[#f4f4f5] mb-6">See a Declassified Video Come to Life</h2>
+          <p className="font-mono text-sm text-[#a1a1aa] mb-8">Our AI doesn't just write posts — it generates cinematic videos from declassified content using Sora 2. Hit the button and watch the secrets come alive.</p>
+          <VideoGenSection
+            promptText="Declassified CIA Project MKUltra mind control program. Secret experiments on unwitting American citizens using LSD and psychological torture. Government cover-up and destruction of evidence."
+            label="Generate Demo Video"
+          />
+        </div>
+      </section>
+
       {/* Final CTA */}
       <section data-testid="landing-final-cta" className="relative z-10 border-t border-[#3f3f46] py-32">
         <div className="max-w-3xl mx-auto px-6 lg:px-12 text-center">
