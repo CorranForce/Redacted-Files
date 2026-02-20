@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, UploadFile, File, Form, HTTPException
+from fastapi import FastAPI, APIRouter, UploadFile, File, Form, HTTPException, Request, Depends
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -12,10 +12,13 @@ import uuid
 from pathlib import Path
 from pydantic import BaseModel
 from typing import List, Optional
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from emergentintegrations.llm.chat import LlmChat, UserMessage
 from emergentintegrations.llm.chat import ImageContent
 import PyPDF2
+import jwt as pyjwt
+import bcrypt as bcrypt_lib
+import requests as http_requests
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -25,6 +28,7 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY')
+JWT_SECRET = os.environ.get('JWT_SECRET')
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
@@ -61,6 +65,125 @@ class GenerateImageRequest(BaseModel):
     post_id: str
     post_text: str
     platform: str
+
+
+# Auth helpers
+def hash_pw(password):
+    return bcrypt_lib.hashpw(password.encode(), bcrypt_lib.gensalt()).decode()
+
+
+def check_pw(password, hashed):
+    return bcrypt_lib.checkpw(password.encode(), hashed.encode())
+
+
+def create_jwt_token(user_id, email):
+    return pyjwt.encode({
+        "sub": user_id,
+        "email": email,
+        "exp": datetime.now(timezone.utc) + timedelta(days=7),
+        "iat": datetime.now(timezone.utc)
+    }, JWT_SECRET, algorithm="HS256")
+
+
+async def get_current_user(request: Request):
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        raise HTTPException(401, "Not authenticated")
+    token = auth_header.split(" ")[1]
+    try:
+        payload = pyjwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+        user = await db.users.find_one({"user_id": payload["sub"]}, {"_id": 0})
+        if not user:
+            raise HTTPException(401, "User not found")
+        return user
+    except pyjwt.ExpiredSignatureError:
+        raise HTTPException(401, "Token expired")
+    except pyjwt.InvalidTokenError:
+        raise HTTPException(401, "Invalid token")
+
+
+# Auth models
+class RegisterRequest(BaseModel):
+    name: str
+    email: str
+    password: str
+
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+class GoogleSessionRequest(BaseModel):
+    session_id: str
+
+
+@api_router.post("/auth/register")
+async def register(req: RegisterRequest):
+    existing = await db.users.find_one({"email": req.email.lower()}, {"_id": 0})
+    if existing:
+        raise HTTPException(409, "Email already registered")
+    user_id = f"user_{uuid.uuid4().hex[:12]}"
+    user_doc = {
+        "user_id": user_id,
+        "email": req.email.lower(),
+        "name": req.name,
+        "password_hash": hash_pw(req.password),
+        "picture": None,
+        "auth_provider": "email",
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.users.insert_one({**user_doc})
+    token = create_jwt_token(user_id, user_doc["email"])
+    return {"token": token, "user": {"user_id": user_id, "email": user_doc["email"], "name": req.name, "picture": None}}
+
+
+@api_router.post("/auth/login")
+async def login_user(req: LoginRequest):
+    user = await db.users.find_one({"email": req.email.lower()}, {"_id": 0})
+    if not user or not user.get("password_hash"):
+        raise HTTPException(401, "Invalid credentials")
+    if not check_pw(req.password, user["password_hash"]):
+        raise HTTPException(401, "Invalid credentials")
+    token = create_jwt_token(user["user_id"], user["email"])
+    return {"token": token, "user": {"user_id": user["user_id"], "email": user["email"], "name": user["name"], "picture": user.get("picture")}}
+
+
+@api_router.get("/auth/me")
+async def auth_me(request: Request):
+    user = await get_current_user(request)
+    return {"user_id": user["user_id"], "email": user["email"], "name": user["name"], "picture": user.get("picture")}
+
+
+@api_router.post("/auth/google-session")
+async def google_session(req: GoogleSessionRequest):
+    resp = http_requests.get(
+        "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data",
+        headers={"X-Session-ID": req.session_id}
+    )
+    if resp.status_code != 200:
+        raise HTTPException(401, "Invalid Google session")
+    data = resp.json()
+    existing = await db.users.find_one({"email": data["email"]}, {"_id": 0})
+    if existing:
+        user_id = existing["user_id"]
+        await db.users.update_one(
+            {"user_id": user_id},
+            {"$set": {"name": data.get("name", existing["name"]), "picture": data.get("picture")}}
+        )
+    else:
+        user_id = f"user_{uuid.uuid4().hex[:12]}"
+        await db.users.insert_one({**{
+            "user_id": user_id,
+            "email": data["email"],
+            "name": data.get("name", ""),
+            "picture": data.get("picture"),
+            "password_hash": None,
+            "auth_provider": "google",
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }})
+    token = create_jwt_token(user_id, data["email"])
+    return {"token": token, "user": {"user_id": user_id, "email": data["email"], "name": data.get("name", ""), "picture": data.get("picture")}}
 
 
 @api_router.get("/")
