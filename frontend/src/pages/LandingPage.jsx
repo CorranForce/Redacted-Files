@@ -67,12 +67,25 @@ const TypewriterDemo = () => {
 
   useEffect(() => {
     let i = 0;
-    const interval = setInterval(() => {
-      if (i < fullText.length) { setDisplayed(fullText.slice(0, i + 1)); i++; }
-      else { clearInterval(interval); setTimeout(() => { setDisplayed(""); i = 0; }, 3000); }
-    }, 30);
-    return () => clearInterval(interval);
-  }, [displayed]);
+    let timer;
+
+    const type = () => {
+      if (i <= fullText.length) {
+        setDisplayed(fullText.slice(0, i));
+        i++;
+        timer = setTimeout(type, 35);
+      } else {
+        timer = setTimeout(() => {
+          i = 0;
+          setDisplayed("");
+          timer = setTimeout(type, 600);
+        }, 4000);
+      }
+    };
+
+    type();
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div data-testid="landing-demo-section" className="bg-black border border-[#2F3336] p-4 font-sans">
