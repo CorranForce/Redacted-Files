@@ -13,10 +13,14 @@ class DeclassifiedAPITester:
         self.tests_passed = 0
         self.findings = []
 
-    def run_test(self, name, method, endpoint, expected_status, data=None, timeout=60, is_form_data=False):
+    def run_test(self, name, method, endpoint, expected_status, data=None, timeout=60, is_form_data=False, auth_required=False):
         """Run a single API test"""
         url = f"{self.base_url}/api{endpoint}"
         headers = {}
+        
+        # Add auth header if required and token available
+        if auth_required and self.auth_token:
+            headers['Authorization'] = f'Bearer {self.auth_token}'
         
         # Only set JSON content type if not form data
         if not is_form_data:
