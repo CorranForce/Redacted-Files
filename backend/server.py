@@ -522,6 +522,82 @@ async def get_video_file(video_id: str):
     return FileResponse(path, media_type="video/mp4")
 
 
+@api_router.get("/demo/images")
+async def get_demo_images():
+    cached = await db.demo_cache.find_one({"type": "platform_images"}, {"_id": 0})
+    if cached and cached.get("images"):
+        return {"images": cached["images"]}
+
+    images = {}
+    for platform in ["twitter", "facebook", "instagram"]:
+        try:
+            chat = LlmChat(
+                api_key=EMERGENT_LLM_KEY,
+                session_id=f"demo-img-{uuid.uuid4()}",
+                system_message="You are a visual designer."
+            ).with_model("gemini", "gemini-3-pro-image-preview").with_params(modalities=["image", "text"])
+
+            text_resp, img_list = await chat.send_message_multimodal_response(
+                UserMessage(text=f"Create a dark cinematic visual card about CIA Project MKUltra declassified documents. Classified aesthetic with redacted text, stamps. Dark background, green accents. No text, no logos. Optimized for {platform}.")
+            )
+            if img_list and len(img_list) > 0:
+                images[platform] = img_list[0]["data"]
+        except Exception as e:
+            logger.error(f"Demo image generation failed for {platform}: {e}")
+
+    if images:
+        await db.demo_cache.update_one(
+            {"type": "platform_images"},
+            {"$set": {"type": "platform_images", "images": images, "created_at": datetime.now(timezone.utc).isoformat()}},
+            upsert=True
+        )
+
+    return {"images": images}
+
+
+@api_router.get("/demo/video")
+async def get_demo_video():
+    cached = await db.demo_cache.find_one({"type": "demo_video"}, {"_id": 0})
+    if cached and cached.get("video_id"):
+        video = await db.videos.find_one({"video_id": cached["video_id"]}, {"_id": 0})
+        if video and video.get("status") == "ready":
+            return {"video_id": cached["video_id"], "status": "ready"}
+        elif video:
+            return {"video_id": cached["video_id"], "status": video.get("status", "generating")}
+    return {"video_id": None, "status": "none"}
+
+
+@api_router.post("/demo/generate-video")
+async def generate_demo_video():
+    cached = await db.demo_cache.find_one({"type": "demo_video"}, {"_id": 0})
+    if cached and cached.get("video_id"):
+        video = await db.videos.find_one({"video_id": cached["video_id"]}, {"_id": 0})
+        if video and video.get("status") in ("ready", "generating"):
+            return {"video_id": cached["video_id"], "status": video["status"]}
+
+    video_id = str(uuid.uuid4())
+    await db.videos.insert_one({**{
+        "video_id": video_id,
+        "session_id": "demo",
+        "status": "generating",
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }})
+    await db.demo_cache.update_one(
+        {"type": "demo_video"},
+        {"$set": {"type": "demo_video", "video_id": video_id, "created_at": datetime.now(timezone.utc).isoformat()}},
+        upsert=True
+    )
+
+    prompt = (
+        "Dark cinematic footage of classified government documents being revealed. "
+        "CIA MKUltra declassified papers with redacted text and official stamps. "
+        "Atmospheric lighting with green and amber tones. Surveillance imagery. "
+        "No text overlays. Dramatic and suspenseful mood."
+    )
+    asyncio.create_task(_run_video_generation(video_id, prompt))
+    return {"video_id": video_id, "status": "generating"}
+
+
 @api_router.get("/session/{session_id}")
 async def get_session(session_id: str):
     session = await db.sessions.find_one({"id": session_id}, {"_id": 0})
