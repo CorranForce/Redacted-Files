@@ -346,8 +346,8 @@ class DeclassifiedAPITester:
         return success  # Success means it correctly returned 401
 
 def main():
-    print("🚀 Starting REDACTED API Tests")
-    print("=" * 50)
+    print("🚀 Starting REDACTED API Tests (Including Auth)")
+    print("=" * 60)
     
     tester = DeclassifiedAPITester()
     
@@ -358,11 +358,30 @@ def main():
     result = tester.test_health_check()
     test_results.append(("Health Check", result))
     
-    # 2. Analyze document
+    # 2. Authentication Tests
+    result = tester.test_register_new_user()
+    test_results.append(("Register New User", result))
+    
+    result = tester.test_register_existing_user()
+    test_results.append(("Register Existing User (409)", result))
+    
+    result = tester.test_login_valid_credentials()
+    test_results.append(("Login Valid Credentials", result))
+    
+    result = tester.test_login_invalid_credentials()
+    test_results.append(("Login Invalid Credentials (401)", result))
+    
+    result = tester.test_auth_me_with_token()
+    test_results.append(("Get User Info (With Token)", result))
+    
+    result = tester.test_auth_me_without_token()
+    test_results.append(("Get User Info (Without Token - 401)", result))
+    
+    # 3. Document Processing Tests
     result = tester.test_analyze_text()
     test_results.append(("Analyze Document", result))
     
-    # 3. Generate posts for all platforms
+    # 4. Generate posts for all platforms
     result = tester.test_generate_post_twitter()
     test_results.append(("Generate Twitter Post", result))
     
@@ -372,7 +391,7 @@ def main():
     result = tester.test_generate_post_instagram()
     test_results.append(("Generate Instagram Post", result))
     
-    # 4. History and session retrieval
+    # 5. History and session retrieval
     result = tester.test_get_history()
     test_results.append(("Get History", result))
     
@@ -380,17 +399,35 @@ def main():
     test_results.append(("Get Session", result))
     
     # Print results summary
-    print("\n" + "=" * 50)
+    print("\n" + "=" * 60)
     print("📊 TEST RESULTS SUMMARY")
-    print("=" * 50)
+    print("=" * 60)
+    
+    auth_tests = 0
+    auth_passed = 0
+    doc_tests = 0
+    doc_passed = 0
     
     for test_name, passed in test_results:
         status = "✅ PASS" if passed else "❌ FAIL"
         print(f"{status} - {test_name}")
+        
+        # Categorize tests
+        if "auth" in test_name.lower() or "register" in test_name.lower() or "login" in test_name.lower() or "user info" in test_name.lower():
+            auth_tests += 1
+            if passed:
+                auth_passed += 1
+        else:
+            doc_tests += 1
+            if passed:
+                doc_passed += 1
     
     passed_count = sum(1 for _, passed in test_results if passed)
     total_count = len(test_results)
     
+    print(f"\n📈 CATEGORY BREAKDOWN:")
+    print(f"   Authentication: {auth_passed}/{auth_tests} tests passed")
+    print(f"   Document Processing: {doc_passed}/{doc_tests} tests passed")
     print(f"\nOverall: {passed_count}/{total_count} tests passed")
     print(f"Success Rate: {(passed_count/total_count)*100:.1f}%")
     
