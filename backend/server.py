@@ -364,6 +364,74 @@ async def get_history():
     return {"sessions": sessions}
 
 
+async def _run_video_generation(video_id, prompt):
+    try:
+        video_gen = OpenAIVideoGeneration(api_key=EMERGENT_LLM_KEY)
+        video_bytes = await asyncio.to_thread(
+            video_gen.text_to_video,
+            prompt=prompt,
+            model="sora-2",
+            size="1280x720",
+            duration=4,
+            max_wait_time=600
+        )
+        if video_bytes:
+            os.makedirs("/app/backend/videos", exist_ok=True)
+            out_path = f"/app/backend/videos/{video_id}.mp4"
+            await asyncio.to_thread(video_gen.save_video, video_bytes, out_path)
+            await db.videos.update_one(
+                {"video_id": video_id}, {"$set": {"status": "ready"}}
+            )
+            logger.info(f"Video {video_id} generated successfully")
+        else:
+            await db.videos.update_one(
+                {"video_id": video_id}, {"$set": {"status": "failed"}}
+            )
+    except Exception as e:
+        logger.error(f"Video generation failed for {video_id}: {e}")
+        await db.videos.update_one(
+            {"video_id": video_id}, {"$set": {"status": "failed"}}
+        )
+
+
+@api_router.post("/generate-video")
+async def generate_video_endpoint(req: GenerateVideoRequest):
+    video_id = str(uuid.uuid4())
+    await db.videos.insert_one({**{
+        "video_id": video_id,
+        "session_id": req.session_id,
+        "status": "generating",
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }})
+
+    prompt = (
+        f"Dark cinematic footage of classified government documents being revealed. "
+        f"Atmospheric, mysterious lighting with green and amber tones. "
+        f"Redacted papers, secret stamps, surveillance imagery. "
+        f"Theme: {req.prompt_text[:300]}. "
+        f"No text overlays. Dramatic and suspenseful mood."
+    )
+
+    asyncio.create_task(_run_video_generation(video_id, prompt))
+    return {"video_id": video_id, "status": "generating"}
+
+
+@api_router.get("/video-status/{video_id}")
+async def get_video_status(video_id: str):
+    video = await db.videos.find_one({"video_id": video_id}, {"_id": 0})
+    if not video:
+        raise HTTPException(404, "Video not found")
+    return {"video_id": video_id, "status": video["status"]}
+
+
+@api_router.get("/videos/{video_id}")
+async def get_video_file(video_id: str):
+    path = f"/app/backend/videos/{video_id}.mp4"
+    if not os.path.exists(path):
+        raise HTTPException(404, "Video not found")
+    return FileResponse(path, media_type="video/mp4")
+
+
 @api_router.get("/session/{session_id}")
 async def get_session(session_id: str):
     session = await db.sessions.find_one({"id": session_id}, {"_id": 0})
