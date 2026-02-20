@@ -53,20 +53,43 @@ export const VideoGenSection = ({ promptText, label = "Generate Video", sessionI
 
   const formatTime = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
+  const downloadVideo = () => {
+    if (!videoUrl) return;
+    const link = document.createElement("a");
+    link.href = videoUrl;
+    link.download = "redacted-video.mp4";
+    link.click();
+    toast.success("Video download started");
+  };
+
   if (status === "ready" && videoUrl) {
     return (
       <div className="space-y-3">
-        <p className="font-mono text-xs uppercase tracking-[0.3em] text-[#22c55e]">// ai-generated video</p>
-        <video
-          src={videoUrl}
-          controls
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="w-full border border-[#3f3f46]"
-          data-testid="generated-video-player"
-        />
+        <div className="flex items-center justify-between">
+          <p className="font-mono text-xs uppercase tracking-[0.3em] text-[#22c55e]">// ai-generated video</p>
+          <Button
+            data-testid="download-video-btn"
+            variant="ghost"
+            size="sm"
+            onClick={downloadVideo}
+            className="text-[#a1a1aa] hover:text-[#22c55e] hover:bg-transparent gap-1.5 font-mono text-xs"
+          >
+            <Download className="w-3.5 h-3.5" /> Download
+          </Button>
+        </div>
+        <div className="relative group">
+          <video
+            src={videoUrl}
+            controls
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full border border-[#3f3f46]"
+            data-testid="generated-video-player"
+          />
+        </div>
+        <p className="font-mono text-[10px] text-[#3f3f46]">Hover over media to download. Right-click for more options.</p>
       </div>
     );
   }
