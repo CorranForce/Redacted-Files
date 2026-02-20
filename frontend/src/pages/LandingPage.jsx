@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
+import { VideoGenSection } from "@/components/VideoGenSection";
 import { FileWarning, ArrowRight, Upload, Sparkles, Share2, MessageCircle, Heart, Repeat2, ThumbsUp, Bookmark, Send, MoreHorizontal, BarChart3 } from "lucide-react";
 
 const SAMPLE_TWITTER = "THREAD: The CIA literally dosed unwitting Americans with LSD for 20 YEARS.\n\nProject MKUltra wasn't just \"mind control research\" \u2014 it was state-sponsored psychedelic terrorism on US citizens.\n\nHere's what the declassified files reveal \u{1F9F5}\n\n#MKUltra #Declassified #CIA";
