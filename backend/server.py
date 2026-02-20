@@ -22,6 +22,7 @@ import requests as http_requests
 import asyncio
 from emergentintegrations.llm.openai.video_generation import OpenAIVideoGeneration
 from fastapi.responses import FileResponse
+import resend
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -32,6 +33,10 @@ db = client[os.environ['DB_NAME']]
 
 EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY')
 JWT_SECRET = os.environ.get('JWT_SECRET')
+RESEND_API_KEY = os.environ.get('RESEND_API_KEY')
+SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'onboarding@resend.dev')
+FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
+resend.api_key = RESEND_API_KEY
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
@@ -73,6 +78,15 @@ class GenerateImageRequest(BaseModel):
 class GenerateVideoRequest(BaseModel):
     prompt_text: str
     session_id: Optional[str] = None
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    password: str
 
 
 # Auth helpers
@@ -194,6 +208,65 @@ async def google_session(req: GoogleSessionRequest):
     return {"token": token, "user": {"user_id": user_id, "email": data["email"], "name": data.get("name", ""), "picture": data.get("picture")}}
 
 
+@api_router.post("/auth/forgot-password")
+async def forgot_password(req: ForgotPasswordRequest):
+    user = await db.users.find_one({"email": req.email.lower()}, {"_id": 0})
+    if not user:
+        return {"message": "If an account exists, a reset email has been sent"}
+
+    reset_token = str(uuid.uuid4())
+    await db.reset_tokens.insert_one({**{
+        "token": reset_token,
+        "email": req.email.lower(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "expires_at": (datetime.now(timezone.utc) + timedelta(hours=1)).isoformat(),
+        "used": False
+    }})
+
+    reset_url = f"{FRONTEND_URL}/reset-password?token={reset_token}"
+    html_content = (
+        '<div style="font-family:monospace;background:#09090b;color:#f4f4f5;padding:40px;max-width:500px">'
+        '<h1 style="color:#22c55e;font-size:24px;margin-bottom:20px">REDACTED</h1>'
+        '<p style="color:#a1a1aa;font-size:14px;margin-bottom:20px">A password reset was requested for your account.</p>'
+        f'<a href="{reset_url}" style="display:inline-block;background:#22c55e;color:#000;padding:12px 24px;text-decoration:none;font-weight:bold;font-size:14px">RESET PASSWORD</a>'
+        '<p style="color:#3f3f46;font-size:12px;margin-top:20px">This link expires in 1 hour.</p>'
+        '</div>'
+    )
+
+    try:
+        await asyncio.to_thread(resend.Emails.send, {
+            "from": SENDER_EMAIL,
+            "to": [req.email.lower()],
+            "subject": "REDACTED - Password Reset",
+            "html": html_content
+        })
+    except Exception as e:
+        logger.error(f"Failed to send reset email: {e}")
+
+    return {"message": "If an account exists, a reset email has been sent"}
+
+
+@api_router.post("/auth/reset-password")
+async def reset_password(req: ResetPasswordRequest):
+    token_doc = await db.reset_tokens.find_one(
+        {"token": req.token, "used": False}, {"_id": 0}
+    )
+    if not token_doc:
+        raise HTTPException(400, "Invalid or expired token")
+
+    if datetime.fromisoformat(token_doc["expires_at"]) < datetime.now(timezone.utc):
+        raise HTTPException(400, "Token has expired")
+
+    await db.users.update_one(
+        {"email": token_doc["email"]},
+        {"$set": {"password_hash": hash_pw(req.password)}}
+    )
+    await db.reset_tokens.update_one(
+        {"token": req.token}, {"$set": {"used": True}}
+    )
+    return {"message": "Password reset successfully"}
+
+
 @api_router.get("/")
 async def root():
     return {"message": "REDACTED API", "status": "operational"}
@@ -201,9 +274,17 @@ async def root():
 
 @api_router.post("/analyze")
 async def analyze_document(
+    request: Request,
     file: Optional[UploadFile] = File(None),
     text: Optional[str] = Form(None)
 ):
+    user_id = None
+    try:
+        user = await get_current_user(request)
+        user_id = user.get("user_id")
+    except Exception:
+        pass
+
     doc_text = ""
     doc_name = "Pasted Text"
 
@@ -249,6 +330,7 @@ async def analyze_document(
         "document_name": doc_name,
         "document_preview": doc_text[:500],
         "findings": findings,
+        "user_id": user_id,
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.sessions.insert_one({**session_doc})
@@ -357,9 +439,17 @@ async def generate_image(req: GenerateImageRequest):
 
 
 @api_router.get("/history")
-async def get_history():
+async def get_history(request: Request):
+    user_id = None
+    try:
+        user = await get_current_user(request)
+        user_id = user.get("user_id")
+    except Exception:
+        pass
+
+    query = {"user_id": user_id} if user_id else {}
     sessions = await db.sessions.find(
-        {}, {"_id": 0}
+        query, {"_id": 0}
     ).sort("created_at", -1).to_list(20)
     return {"sessions": sessions}
 
