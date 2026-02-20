@@ -18,8 +18,6 @@ export default function AuthPage() {
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
   const [loading, setLoading] = useState(false);
 
-  if (user) { navigate("/dashboard", { replace: true }); }
-
   useEffect(() => {
     if (user) navigate("/dashboard", { replace: true });
   }, [user, navigate]);
